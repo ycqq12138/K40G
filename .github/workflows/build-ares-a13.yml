@@ -14,7 +14,7 @@ on:
       KERNELSU_VARIANT:
         description: 'KernelSU Variant (resukisu/sukisu/official)'
         required: true
-        default: 'resukisu'
+        default: 'sukisu'
       ENABLE_SUSFS:
         description: 'Enable SUSFS'
         required: true
