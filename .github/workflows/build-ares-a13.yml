@@ -184,7 +184,14 @@ jobs:
           fi
 
           echo "GPU driver fixes applied"
-
+          
+      - name: Create firmware placeholder
+        run: |
+          cd kernel
+          mkdir -p include/firmware
+          # 创建空的占位文件，让编译通过
+          touch include/firmware/fw_sample.i
+          echo "Created placeholder fw_sample.i"
           
       - name: Build Kernel
         run: |
