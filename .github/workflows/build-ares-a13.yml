@@ -217,7 +217,7 @@ jobs:
 
           # 修复 2：KPM access_ok 参数不兼容 (4.14 需要 3 个参数)
           if [ -f drivers/kernelsu/kpm/kpm.c ]; then
-            sed -i 's/access_ok($$[^,]*$$,/access_ok(0, \1,/g' \
+            sed -i 's/access_ok(/access_ok(0, /g' \
               drivers/kernelsu/kpm/kpm.c
             echo "Fixed access_ok for kernel 4.14"
           fi
