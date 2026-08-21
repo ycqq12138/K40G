@@ -41,7 +41,7 @@ jobs:
 
       - name: Setup AOSP Clang
         run: |
-          # AOSP Clang 12.0.5 (r416183b)，对 4.14 内核兼容性最好
+          echo "AOSP Clang 12.0.5 (r416183b)，对 4.14 内核兼容性最好"
           wget -q "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master-kernel-build-2022/clang-r416183b.tar.gz" -O clang.tar.gz
           mkdir -p clang
           tar -xzf clang.tar.gz -C clang
