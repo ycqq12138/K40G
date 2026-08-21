@@ -38,10 +38,16 @@ jobs:
             libssl-dev device-tree-compiler python3 cpio kmod \
             gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
 
-      - name: Setup Proton Clang
+
+      - name: Setup AOSP Clang
         run: |
-          git clone --depth=1 https://github.com/kdrag0n/proton-clang -b master clang
+          # AOSP Clang 12.0.5 (r416183b)，对 4.14 内核兼容性最好
+          wget -q "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/master-kernel-build-2022/clang-r416183b.tar.gz" -O clang.tar.gz
+          mkdir -p clang
+          tar -xzf clang.tar.gz -C clang
+          rm clang.tar.gz
           echo "PATH=$PWD/clang/bin:$PATH" >> $GITHUB_ENV
+          clang --version
 
       - name: Clone Kernel Source
         run: |
