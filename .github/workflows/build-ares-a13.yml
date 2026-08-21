@@ -67,7 +67,7 @@ jobs:
           
           case "${{ github.event.inputs.KERNELSU_VARIANT }}" in
             resukisu)
-              curl -LSs "https://raw.githubusercontent.com/ReSukiSU/kernel/main/setup.sh" | bash
+              curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/refs/heads/main/kernel/setup.sh" | bash
               ;;
             sukisu)
               curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
