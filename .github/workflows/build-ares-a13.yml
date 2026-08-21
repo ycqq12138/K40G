@@ -157,7 +157,7 @@ jobs:
           export STRIP=llvm-strip
           
           make O=out ${{ github.event.inputs.DEFCONFIG }}
-          make O=out -j$(nproc) KCFLAGS=-Wno-error 2>&1 | tee build.log
+          make O=out -j$(nproc) KCFLAGS=-w 2>&1 | tee build.log
           
           echo "Build output:"
           ls -la out/arch/arm64/boot/
