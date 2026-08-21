@@ -10,7 +10,7 @@ on:
       DEFCONFIG:
         description: 'Defconfig Name'
         required: true
-        default: 'ares_defconfig'
+        default: 'ares_user_defconfig'
       KERNELSU_VARIANT:
         description: 'KernelSU Variant (resukisu/sukisu/official)'
         required: true
