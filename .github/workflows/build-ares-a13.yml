@@ -6,7 +6,7 @@ on:
       KERNEL_BRANCH:
         description: 'Kernel Branch'
         required: true
-        default: 'ares-t-oss'
+        default: 'ares-r-oss'
       DEFCONFIG:
         description: 'Defconfig Name'
         required: true
