@@ -41,13 +41,20 @@ jobs:
 
       - name: Setup Clang Toolchain
         run: |
-          # 方案A：从 AOSP Git 直接克隆（慢但稳定）
-          git clone --depth=1 \
-            -b master-kernel-build-2022 \
-            https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 \
-            clang
-          echo "PATH=$PWD/clang/bin:$PATH" >> $GITHUB_ENV
+          sudo apt update
+          sudo apt install -y clang-12 lld-12 llvm-12 \
+            gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
+
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-12 100
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-12 100
+          sudo update-alternatives --install /usr/bin/llvm-ar llvm-ar /usr/bin/llvm-ar-12 100
+          sudo update-alternatives --install /usr/bin/llvm-nm llvm-nm /usr/bin/llvm-nm-12 100
+          sudo update-alternatives --install /usr/bin/llvm-objcopy llvm-objcopy /usr/bin/llvm-objcopy-12 100
+          sudo update-alternatives --install /usr/bin/llvm-objdump llvm-objdump /usr/bin/llvm-objdump-12 100
+          sudo update-alternatives --install /usr/bin/llvm-strip llvm-strip /usr/bin/llvm-strip-12 100
+
           clang --version
+          ld.lld --version
 
       - name: Clone Kernel Source
         run: |
@@ -192,7 +199,33 @@ jobs:
           # 创建空的占位文件，让编译通过
           touch include/firmware/fw_sample.i
           echo "Created placeholder fw_sample.i"
-          
+      - name: Fix Build Errors
+        run: |
+          cd kernel
+
+          # 修复 1：blk-crypto.c ksm_flock 内联失败
+          # 把 always_inline 声明改为普通 inline，添加函数体
+          if [ -f include/linux/keyslot-manager.h ]; then
+            sed -i 's/inline void ksm_flock/static inline void ksm_flock/' \
+              include/linux/keyslot-manager.h
+            # 检查是否有函数体，如果没有就添加
+            grep -q "ksm_flock {" include/linux/keyslot-manager.h || \
+            sed -i '/inline void ksm_flock.*);/a\static inline void ksm_flock(struct keyslot_manager *ksm, unsigned int flags)\n{\n\tif (ksm && ksm->ksm_flock)\n\t\tksm->ksm_flock(ksm, flags);\n}' \
+              include/linux/keyslot-manager.h
+            echo "Fixed ksm_flock inline"
+          fi
+
+          # 修复 2：KPM access_ok 参数不兼容 (4.14 需要 3 个参数)
+          if [ -f drivers/kernelsu/kpm/kpm.c ]; then
+            sed -i 's/access_ok($$[^,]*$$,/access_ok(0, \1,/g' \
+              drivers/kernelsu/kpm/kpm.c
+            echo "Fixed access_ok for kernel 4.14"
+          fi
+
+          # 修复 3：创建触屏固件占位文件
+          mkdir -p include/firmware
+          touch include/firmware/fw_sample.i
+          echo "Created firmware placeholder"
       - name: Build Kernel
         run: |
           cd kernel
