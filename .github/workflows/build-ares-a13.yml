@@ -199,18 +199,19 @@ jobs:
           # 创建空的占位文件，让编译通过
           touch include/firmware/fw_sample.i
           echo "Created placeholder fw_sample.i"
+
+
       - name: Fix Build Errors
         run: |
           cd kernel
 
           # 修复 1：blk-crypto.c ksm_flock 内联失败
-          # 把 always_inline 声明改为普通 inline，添加函数体
           if [ -f include/linux/keyslot-manager.h ]; then
-            sed -i 's/inline void ksm_flock/static inline void ksm_flock/' \
+            # 先删掉之前可能残留的坏代码
+            sed -i '/static inline void ksm_flock/,/^}$/d' \
               include/linux/keyslot-manager.h
-            # 检查是否有函数体，如果没有就添加
-            grep -q "ksm_flock {" include/linux/keyslot-manager.h || \
-            sed -i '/inline void ksm_flock.*);/a\static inline void ksm_flock(struct keyslot_manager *ksm, unsigned int flags)\n{\n\tif (ksm && ksm->ksm_flock)\n\t\tksm->ksm_flock(ksm, flags);\n}' \
+            # 把原声明改为带空函数体的 static inline
+            sed -i 's|inline void ksm_flock(struct keyslot_manager \*ksm, unsigned int flags);|static inline void ksm_flock(struct keyslot_manager *ksm, unsigned int flags)\n{\n}|' \
               include/linux/keyslot-manager.h
             echo "Fixed ksm_flock inline"
           fi
@@ -226,6 +227,8 @@ jobs:
           mkdir -p include/firmware
           touch include/firmware/fw_sample.i
           echo "Created firmware placeholder"
+
+
       - name: Build Kernel
         run: |
           cd kernel
